@@ -1,0 +1,26 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.cache
+
+# Сборка
+out/
+build/
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.obj
+*.lib
+
+# Qt
+*.moc
+*.rc
+
+# Copilot
+CopilotIndices/
+
+# Windows
+Thumbs.db
+Desktop.ini
