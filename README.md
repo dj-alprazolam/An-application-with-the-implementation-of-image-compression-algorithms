@@ -1,0 +1,42 @@
+﻿# Image Compressor — Сжатие изображений
+
+Учебная практика на C++. Приложение загружает изображения (BMP, TIFF) и сжимает их разными алгоритмами.
+
+## Что нужно для сборки
+
+- **Visual Studio 2022** 
+- **Qt 6** (MSVC 2022 64-bit)
+- **OpenCV 4.10+**
+- **CMake 3.16+**
+
+## Как собрать проект
+
+### 1. Установи программы
+
+**Visual Studio 2022:**
+**Qt:**
+**OpenCV:**
+### 2. Открой проект
+
+1. Скачай файлы проекта
+2. Открой Visual Studio → **Файл** → **Открыть папку**
+3. Выбери папку `app_compressor`
+
+### 3. Настройка CMake
+
+Создай в корне проекта файл **`CMakePresets.json`**:
+
+```json
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "default",
+      "binaryDir": "${sourceDir}/out",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "C:/Qt/6.11.1/msvc2022_64",
+        "OpenCV_DIR": "C:/opencv/build"
+      }
+    }
+  ]
+}
