@@ -5,8 +5,22 @@
       "name": "default",
       "binaryDir": "${sourceDir}/out",
       "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "C:/Qt/6.11.1/msvc2022_64",
-        "OpenCV_DIR": "C:/opencv/build"
+        "CMAKE_PREFIX_PATH": "$env{QT_DIR}",
+        "OpenCV_DIR": "C:/opencv/build/x64/vc16"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     }
   ]

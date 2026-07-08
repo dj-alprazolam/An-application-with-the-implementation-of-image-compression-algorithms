@@ -15,7 +15,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget *patern = nullptr);
+	MainWindow(QWidget *parent = nullptr);
 	~MainWindow();
 
 private slots:
@@ -26,7 +26,7 @@ private slots:
 private:
 	void setupUI();
 	void displayimage(const cv::Mat& image);
-	void imageInMat(const cv::Mat& mat);
+	QImage imageInMat(const cv::Mat& mat);
 
 	QLabel* imageLable;
 	QPushButton* openButton;

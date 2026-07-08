@@ -1,10 +1,10 @@
-# Visual Studio
+
 .vs/
 *.user
 *.suo
 *.cache
 
-# Сборка
+
 out/
 build/
 *.exe
@@ -14,13 +14,13 @@ build/
 *.obj
 *.lib
 
-# Qt
+
 *.moc
 *.rc
 
-# Copilot
+
 CopilotIndices/
 
-# Windows
+
 Thumbs.db
 Desktop.ini
