@@ -16,7 +16,7 @@ set(CMAKE_AUTORCC ON)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h")
 
-add_executable(${PROJECT_NAME} ${SOURCES} "src/gui/mainwindow.h" "src/gui/mainwindow.cpp")
+add_executable(${PROJECT_NAME} ${SOURCES} "src/gui/mainwindow.h" "src/gui/mainwindow.cpp" "src/algorithm/rle.h" "src/algorithm/compressionalgorithm.h" "src/algorithm/rle.cpp")
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
 
