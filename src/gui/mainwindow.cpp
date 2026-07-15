@@ -4,9 +4,15 @@
 #include<qfileinfo.h>
 #include<qmessagebox.h>
 #include<qpixmap.h>
+#include<qstring.h>
+
 
 MainWindow::MainWindow(QWidget* patern):QMainWindow(patern) {
 	setupUI();
+	connect(algorithmCombox, QOverload<int>::of(&QComboBox::currentIndexChanged), 
+            this, &MainWindow::onAlgorithmChanged);
+	
+	updateAlgorithm();		
 }
 
 MainWindow::~MainWindow() {
@@ -106,20 +112,34 @@ void MainWindow::openimage()
 	compressLable->setText("Коэффициент сжатия: -");
 }
 
-void MainWindow::compressimage()
-{
-	if (originalImage.empty()) {
-		QMessageBox::warning(this, "Ошибка", "Сначала загрузите изображение!");
-		return;
-	}
+void MainWindow::compressimage() {
+    if (originalImage.empty()) {
+        QMessageBox::warning(this, "Ошибка", "Сначала загрузите изображение!");
+        return;
+    }
+    compressedImage = currentAlgorithm->compress(originalImage);
 
-	int algorithmIndex = algorithmCombox->currentIndex();
-	compressedImage = originalImage.clone();
-	displayimage(compressedImage);
-	saveButton->setEnabled(true);
-	compressLable->setText("nan");
+    double ratio = currentAlgorithm->getCompression();
+
+  
+    QString compressionInfo;
+    if (ratio > 1.0) {
+        double percent = (1.0 / ratio) * 100.0;
+        compressionInfo = QString("Уменьшение в %1 раз (%2% от исходного)")
+                         .arg(ratio, 0, 'f', 2)
+                         .arg(percent, 0, 'f', 1);
+    } else if (ratio < 1.0) {
+        double increaseFactor = 1.0 / ratio;
+        compressionInfo = QString(" Увеличение в %1 раз ")
+                         .arg(increaseFactor, 0, 'f', 2);
+    } else {
+        compressionInfo = "Размер не изменился";
+    }
+
+    compressLable->setText(QString("Коэффициент сжатия: %1").arg(compressionInfo));
+    displayimage(compressedImage);
+    saveButton->setEnabled(true);
 }
-
 void MainWindow::saveimage()
 {
 	if (compressedImage.empty()) {
@@ -175,4 +195,19 @@ void MainWindow::displayimage(const cv::Mat& image) {
 	);
 
 	imageLable->setPixmap(scaledPixmap);
+}
+void MainWindow:: updateAlgorithm(){
+	QString algo = algorithmCombox->currentText();
+	if(algo == "RLE"){
+		currentAlgorithm = std::make_unique<rle>();
+	}
+}
+
+void MainWindow::onAlgorithmChanged(int index) {
+    updateAlgorithm();
+    if (!originalImage.empty()) {
+        compressButton->setEnabled(true);
+        compressLable->setText("Коэффициент сжатия: - (алгоритм изменен)");
+        saveButton->setEnabled(false);
+    }
 }

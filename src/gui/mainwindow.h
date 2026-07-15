@@ -9,6 +9,9 @@
 #include <QComboBox>
 #include <QVBoxLayout>
 #include <QFileDialog>
+#include<memory>
+#include"rle.h"
+#include"compressionalgorithm.h"
 
 class MainWindow : public QMainWindow
 {
@@ -22,11 +25,13 @@ private slots:
 	void openimage();
 	void compressimage();
 	void saveimage();
+	void onAlgorithmChanged(int index);
 
 private:
 	void setupUI();
 	void displayimage(const cv::Mat& image);
 	QImage imageInMat(const cv::Mat& mat);
+	void updateAlgorithm();
 
 	QLabel* imageLable;
 	QPushButton* openButton;
@@ -37,4 +42,6 @@ private:
 
 	cv::Mat originalImage;
 	cv::Mat compressedImage;
+
+	std::unique_ptr<CompressionAlgorithm> currentAlgorithm;
 };

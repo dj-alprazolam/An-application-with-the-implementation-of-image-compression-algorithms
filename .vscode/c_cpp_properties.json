@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "MSVC",
+            "includePath": [
+                "${workspaceFolder}/src/**",
+                "C:/Qt/6.11.1/msvc2022_64/include/**",
+                "C:/Qt/6.11.1/msvc2022_64/include/QtCore",
+                "C:/Qt/6.11.1/msvc2022_64/include/QtWidgets",
+                "C:/Qt/6.11.1/msvc2022_64/include/QtGui",
+                "C:/opencv/build/include"
+            ],
+            "defines": [
+                "QT_CORE_LIB",
+                "QT_GUI_LIB",
+                "QT_WIDGETS_LIB"
+            ],
+            "compilerPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}
