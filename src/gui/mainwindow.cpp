@@ -200,7 +200,11 @@ void MainWindow:: updateAlgorithm(){
 	QString algo = algorithmCombox->currentText();
 	if(algo == "RLE"){
 		currentAlgorithm = std::make_unique<rle>();
+	} 
+	else if(algo == "LWZ"){
+		currentAlgorithm = std::make_unique<lwz>();
 	}
+	
 }
 
 void MainWindow::onAlgorithmChanged(int index) {

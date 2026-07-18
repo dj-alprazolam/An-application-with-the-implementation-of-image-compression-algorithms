@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include<memory>
 #include"rle.h"
+#include"lwz.h"
 #include"compressionalgorithm.h"
 
 class MainWindow : public QMainWindow
