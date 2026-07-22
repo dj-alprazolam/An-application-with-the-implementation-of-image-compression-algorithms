@@ -203,6 +203,8 @@ void MainWindow:: updateAlgorithm(){
 	} 
 	else if(algo == "LWZ"){
 		currentAlgorithm = std::make_unique<lwz>();
+	}else if(algo == "HUFFMAN" ){
+		currentAlgorithm = std::make_unique<huff>();
 	}
 	
 }
