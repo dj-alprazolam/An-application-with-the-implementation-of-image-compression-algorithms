@@ -13,6 +13,7 @@
 #include"rle.h"
 #include"lwz.h"
 #include"huff.h"
+#include"dct.h"
 #include"compressionalgorithm.h"
 
 class MainWindow : public QMainWindow

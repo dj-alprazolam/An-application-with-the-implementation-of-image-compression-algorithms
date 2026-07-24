@@ -117,23 +117,47 @@ void MainWindow::compressimage() {
         QMessageBox::warning(this, "Ошибка", "Сначала загрузите изображение!");
         return;
     }
+
+    if (!currentAlgorithm) {
+        QMessageBox::warning(this, "Ошибка", "Алгоритм сжатия не выбран!");
+        return;
+    }
+
     compressedImage = currentAlgorithm->compress(originalImage);
+
+    if (compressedImage.empty()) {
+        QMessageBox::critical(this, "Ошибка", "Ошибка при сжатии изображения");
+        return;
+    }
 
     double ratio = currentAlgorithm->getCompression();
 
-  
     QString compressionInfo;
-    if (ratio > 1.0) {
-        double percent = (1.0 / ratio) * 100.0;
-        compressionInfo = QString("Уменьшение в %1 раз (%2% от исходного)")
-                         .arg(ratio, 0, 'f', 2)
-                         .arg(percent, 0, 'f', 1);
-    } else if (ratio < 1.0) {
-        double increaseFactor = 1.0 / ratio;
-        compressionInfo = QString(" Увеличение в %1 раз ")
-                         .arg(increaseFactor, 0, 'f', 2);
+
+    if (currentAlgorithm->algorithmname() == "DCT") {
+        if (ratio < 1.0) {
+            double factor = 1.0 / ratio;
+            double percent = ratio * 100.0;
+            compressionInfo = QString("Уменьшение в %1 раз (%2% от исходного)")
+                                  .arg(factor, 0, 'f', 2)
+                                  .arg(percent, 0, 'f', 1);
+        } else {
+            compressionInfo = QString("Размер не изменился (%1% от исходного)")
+                                  .arg(ratio * 100.0, 0, 'f', 1);
+        }
     } else {
-        compressionInfo = "Размер не изменился";
+        if (ratio < 1.0) {
+            double factor = 1.0 / ratio;
+            double percent = ratio * 100.0;
+            compressionInfo = QString("Уменьшение в %1 раз (%2% от исходного)")
+                                  .arg(factor, 0, 'f', 2)
+                                  .arg(percent, 0, 'f', 1);
+        } else if (ratio > 1.0) {
+            compressionInfo = QString(" Увеличение в %1 раз (алгоритм неэффективен)")
+                                  .arg(ratio, 0, 'f', 2);
+        } else {
+            compressionInfo = "Размер не изменился";
+        }
     }
 
     compressLable->setText(QString("Коэффициент сжатия: %1").arg(compressionInfo));
@@ -205,6 +229,9 @@ void MainWindow:: updateAlgorithm(){
 		currentAlgorithm = std::make_unique<lwz>();
 	}else if(algo == "HUFFMAN" ){
 		currentAlgorithm = std::make_unique<huff>();
+	}else if(algo == "DCT"){
+		currentAlgorithm = std::make_unique<dct>();
+
 	}
 	
 }

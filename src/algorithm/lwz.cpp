@@ -64,9 +64,9 @@ cv::Mat lwz::compress(const cv::Mat& input){
 
     if (!compressdata.empty())
     {
-
         uint16_t firstCode = compressdata[0];
-        std::vector<uint8_t> currentEntry = {static_cast<uint8_t>(firstCode)};
+        std::vector<uint8_t> currentEntry;
+        currentEntry.push_back(static_cast<uint8_t>(firstCode));
         restoredData.push_back(firstCode);
 
         for (size_t i = 1; i < compressdata.size(); ++i)
@@ -74,11 +74,21 @@ cv::Mat lwz::compress(const cv::Mat& input){
             uint16_t code = compressdata[i];
             std::vector<uint8_t> entry;
 
-            if (code < decDictionary.size() + 256)
+            if (code < 256)
             {
-                entry = decDictionary[code - 256];
+                entry.push_back(static_cast<uint8_t>(code));
             }
-            else if (code == decDictionary.size() + 256)
+
+            else if (code >= 256 && code < 256 + decDictionary.size())
+            {
+                size_t index = code - 256;
+                if (index < decDictionary.size())
+                {
+                    entry = decDictionary[index];
+                }
+            }
+
+            else if (code == 256 + decDictionary.size())
             {
                 entry = currentEntry;
                 if (!currentEntry.empty())
@@ -86,32 +96,26 @@ cv::Mat lwz::compress(const cv::Mat& input){
                     entry.push_back(currentEntry[0]);
                 }
             }
-            else if (code < 256)
-            {
-                entry = {static_cast<uint8_t>(code)};
-            }
-            
+
             else
             {
                 continue;
             }
 
-            for (uint8_t b : entry)
+            for (size_t k = 0; k < entry.size(); ++k)
             {
-                restoredData.push_back(b);
+                restoredData.push_back(entry[k]);
             }
 
-            if (decDictionary.size() < 65535 - 256 && !entry.empty() && !currentEntry.empty())
+  
+            if (!currentEntry.empty() && !entry.empty() && decDictionary.size() < 65535 - 256)
             {
                 std::vector<uint8_t> newEntry = currentEntry;
                 newEntry.push_back(entry[0]);
                 decDictionary.push_back(newEntry);
             }
 
-            if (!entry.empty())
-            {
-                currentEntry = entry;
-            }
+            currentEntry = entry;
         }
     }
     cv::Mat restored(contInput.rows, contInput.cols, contInput.type());
