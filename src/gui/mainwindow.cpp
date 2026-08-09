@@ -231,7 +231,8 @@ void MainWindow:: updateAlgorithm(){
 		currentAlgorithm = std::make_unique<huff>();
 	}else if(algo == "DCT"){
 		currentAlgorithm = std::make_unique<dct>();
-
+	}else if(algo == "FRACTAL"){
+		currentAlgorithm = std::make_unique<Fractal>();
 	}
 	
 }
