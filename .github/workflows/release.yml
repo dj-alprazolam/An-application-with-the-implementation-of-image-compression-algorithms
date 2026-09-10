@@ -23,17 +23,22 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2022_64'
-          # Убрал modules: 'qtbase' — базовые модули устанавливаются автоматически
-          # Если нужны дополнительные модули, добавь их сюда (например: 'qtimageformats qtmultimedia')
 
-      - name: Download and extract OpenCV
+      - name: Install OpenCV via vcpkg
         run: |
-          Invoke-WebRequest -Uri "https://github.com/opencv/opencv/releases/download/4.10.0/opencv-4.10.0-windows.exe" -OutFile "opencv.exe"
-          7z x opencv.exe -o"C:\"
+          # Устанавливаем vcpkg
+          git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+          C:\vcpkg\bootstrap-vcpkg.bat
+          
+          # Устанавливаем OpenCV
+          C:\vcpkg\vcpkg.exe install opencv:x64-windows --triplet x64-windows
+          
+          # Интегрируем vcpkg с CMake
+          C:\vcpkg\vcpkg.exe integrate install
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR="C:\opencv\build"
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vcpkg.cmake"
 
       - name: Build
         run: cmake --build build --config Release
@@ -57,8 +62,9 @@ jobs:
           Write-Host "Запуск windeployqt..."
           windeployqt --release --no-compiler-runtime --no-translations "$releaseDir\$($exe.Name)"
 
-          $opencvBin = "C:\opencv\build\x64\vc16\bin"
-          Get-ChildItem -Path $opencvBin -Filter "opencv_*.dll" | Copy-Item -Destination $releaseDir
+          # Копируем DLL OpenCV из vcpkg
+          $vcpkgBin = "C:\vcpkg\installed\x64-windows\bin"
+          Get-ChildItem -Path $vcpkgBin -Filter "opencv_*.dll" | Copy-Item -Destination $releaseDir
 
           Copy-Item -Path "README.md" -Destination "$releaseDir\README.txt" -ErrorAction SilentlyContinue
 
@@ -79,7 +85,7 @@ jobs:
             
             ### 📦 Что внутри:
             - Готовый к запуску `.exe` файл
-            - Все необходимые библиотеки Qt 6 и OpenCV 4.10+
+            - Все необходимые библиотеки Qt 6 и OpenCV
             - Файл README с инструкцией
             
             ### 🚀 Как запустить:
@@ -91,4 +97,4 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}ы
