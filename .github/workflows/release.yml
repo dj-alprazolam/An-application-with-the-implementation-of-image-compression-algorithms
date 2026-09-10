@@ -3,56 +3,47 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # Запускает workflow при создании тега, начинающегося с 'v' (например, v1.0.0)
+      - 'v*'
 
 jobs:
   build-and-release:
     runs-on: windows-latest
 
     steps:
-      # 1. Скачивание исходного кода
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Инициализация среды разработчика MSVC (Visual Studio)
       - name: Setup MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
 
-      # 3. Установка Qt 6 (MSVC 2022 64-bit)
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.*' # Можно изменить на нужную версию, например, '6.5.*' или '6.11.*'
+          version: '6.8.*'
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2022_64'
-          modules: 'qtbase' # Добавь другие модули через пробел, если используешь (например, qtimageformats)
+          # Убрал modules: 'qtbase' — базовые модули устанавливаются автоматически
+          # Если нужны дополнительные модули, добавь их сюда (например: 'qtimageformats qtmultimedia')
 
-      # 4. Скачивание и распаковка OpenCV 4.10.0
       - name: Download and extract OpenCV
         run: |
           Invoke-WebRequest -Uri "https://github.com/opencv/opencv/releases/download/4.10.0/opencv-4.10.0-windows.exe" -OutFile "opencv.exe"
-          7z x opencv.exe -o"C:\" # Распакует в C:\opencv
+          7z x opencv.exe -o"C:\"
 
-      # 5. Настройка CMake
       - name: Configure CMake
         run: |
-          # ВАЖНО: Если твой CMakeLists.txt находится в папке app_compressor, измени '.' на './app_compressor'
-             cmake -S ./app_compressor -B build -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR="C:\
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR="C:\opencv\build"
 
-      # 6. Сборка проекта
       - name: Build
         run: cmake --build build --config Release
 
-      # 7. Подготовка релизной папки (копирование exe, DLL Qt и OpenCV)
       - name: Package Application
         shell: pwsh
         run: |
-          # Создаём папку для релиза
           $releaseDir = "Release_Package"
           New-Item -ItemType Directory -Force -Path $releaseDir
 
-          # Находим основной .exe файл (исключая тесты или вспомогательные утилиты)
           $exe = Get-ChildItem -Path build -Recurse -Filter "*.exe" | Where-Object { $_.Name -notmatch "test|example|d\.exe$" } | Select-Object -First 1
           
           if ($null -eq $exe) {
@@ -63,23 +54,18 @@ jobs:
           Write-Host "Найден исполняемый файл: $($exe.FullName)"
           Copy-Item -Path $exe.FullName -Destination $releaseDir
 
-          # Запускаем windeployqt для автоматического копирования DLL-файлов Qt
           Write-Host "Запуск windeployqt..."
           windeployqt --release --no-compiler-runtime --no-translations "$releaseDir\$($exe.Name)"
 
-          # Копируем необходимые DLL-файлы OpenCV (все, что начинается с opencv_)
           $opencvBin = "C:\opencv\build\x64\vc16\bin"
           Get-ChildItem -Path $opencvBin -Filter "opencv_*.dll" | Copy-Item -Destination $releaseDir
 
-          # Добавляем README в архив
           Copy-Item -Path "README.md" -Destination "$releaseDir\README.txt" -ErrorAction SilentlyContinue
 
-      # 8. Создание ZIP-архива
       - name: Create ZIP archive
         run: |
           Compress-Archive -Path "Release_Package\*" -DestinationPath "ImageCompressor_Release.zip"
 
-      # 9. Создание релиза на GitHub и загрузка артефакта
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
